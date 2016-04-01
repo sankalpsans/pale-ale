@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BUCKET=logs.sportskeeda.com
-LOGPATH=loadbalancer_logs/AWSLogs/246435084856/elasticloadbalancing/ap-southeast-1
+BUCKET=yourbucketname
+LOGPATH=path/to/logfile/on/s3
 YEAR=$(date -d "$y" '+%Y')
 MONTH=$(date -d "$m" '+%m')
 DAY=$(date -d "$d" '+%d')
