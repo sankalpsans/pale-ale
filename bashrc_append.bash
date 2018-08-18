@@ -5,6 +5,60 @@ LOGPATH=path/to/logfile/on/s3
 YEAR=$(date -d "$y" '+%Y')
 MONTH=$(date -d "$m" '+%m')
 DAY=$(date -d "$d" '+%d')
+LOCAL_ELB_LOGS_FILE_PATH=. # Wherever this gets included 
+
+function getlogs() {
+
+    # Take UTC time input for analysis. Expecting start and end of range.
+    start_time=$1" "$2
+    end_time=$3" "$4
+    echo $start_time;
+    echo $end_time;
+    # Process time in different formats for processing.
+    start_ts_to_zulu=$(date -d "$start_time" '+%Y%m%dT%H%MZ')
+    START_YEAR=$(date -d "$start_time" '+%Y')
+    START_MONTH=$(date -d "$start_time" '+%m')
+    START_DATE=$(date -d "$start_time" '+%d')
+
+    end_ts_to_epoch=$(date +%s -d "$end_time") #Converting to EPOCH
+    start_ts_to_epoch=$(date +%s -d "$start_time") #Converting to EPOCH
+    MPHR=60    # Minutes per hour.
+    STEP=5     # Step value based on aws logs generation timestamp.
+
+    # Take out difference between START_TS and END_TS in minutes. Change $MPHR to get diff in different unit i.e. seconds, hours.
+    DIFF_IN_TIMESTAMPS=$(( ($end_ts_to_epoch - $start_ts_to_epoch) / $MPHR ))
+
+
+    cd $LOCAL_ELB_LOGS_FILE_PATH;
+
+    #Now we calculate no of files to process based on assumption - Log files are generated after every 5minutes. //To do - add it as config variable.
+    LOOP_COUNT=$(( $DIFF_IN_TIMESTAMPS / $STEP ))
+    echo "LOOP COUNT: "$LOOP_COUNT;
+
+    s=0
+    SEARCH_TIME=$start_time
+    SEARCH_TIME_LOG_FORMAT=$start_ts_to_zulu
+
+    echo SEACHING FOR $SEARCH_TIME_LOG_FORMAT
+
+    #Loop for copying & unzipping files for required timestamp range.
+    echo "####" $LOGPATH
+    while [ $s -le $LOOP_COUNT ]
+    do
+        aws s3 ls s3://$BUCKET/$LOGPATH/$START_YEAR/$START_MONTH/$START_DATE/ | grep "$SEARCH_TIME_LOG_FORMAT" | awk '{print $4}' \
+        | while read line;
+        do
+            echo "Copying : $line"; aws s3 cp s3://$BUCKET/$LOGPATH/$START_YEAR/$START_MONTH/$START_DATE/$line $LOCAL_ELB_LOGS_FILE_PATH;
+            echo "Unzipping: "; gunzip $line;
+        done;
+        #Increase timestamp to find next log file
+        SEARCH_TIME=$(date --date "$SEARCH_TIME 5 minutes" '+%Y-%m-%d %H:%M')
+        SEARCH_TIME_LOG_FORMAT=$(date -d "$SEARCH_TIME" '+%Y%m%dT%H%MZ')
+        s=$((s+1))
+    done
+    echo "DONE Copying REQD FILES";
+    
+}
 
 # Lists log files present for today's date at the relevant location in S3
 function showlogs() {
