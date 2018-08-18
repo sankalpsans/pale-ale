@@ -25,6 +25,10 @@ If you have log file locally instead of on an S3 bucket, you can skip steps 1 an
 
 ![Image:Download the log file from S3 to local](https://sankalpinspiration.files.wordpress.com/2016/04/screen-shot-2016-04-01-at-9-15-44-am.png "Download the log file from S3 to local")
 
+Alternatively, you can bulk download files for particular timestamps using the newly added command `getlogs`
+
+`getlogs 2018-08-19 00:10 2018-08-19 00:30` will get you log files between the two timestamps passed here (UTC).
+
 3. The fun begins! Use all sorts of commands (sigh, there are only three as of now) on this file to see "what's happening" (read that in Gary Cole voice from the movie Office Space) with your Elastic Load Balancer today!
 
 
