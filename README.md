@@ -1,4 +1,7 @@
-# pale-ale
+# ⛔️ Why not to use this [deprecated, not maintained]
+AWS Athena, launched in 2016, after I have written the original code is way better, more structured, and not all that expensive. Go use that instead of trying to mess with this legacy codebase!
+
+# 🍺 pale-ale
 Pale ALE, or Plain And LEan AWS Log-analyzer for ElasticLoadBalancer (that was really stretching it, wasn't it?) is a lean and simple utility written in bash which I use every now and then to see what's happening with my load balancer at about right now. As of now, it supports basic commands to get the most elementary info, and is not fit for processing warehoused data for insight over years.
 
 # Why?
